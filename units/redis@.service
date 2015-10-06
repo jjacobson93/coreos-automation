@@ -1,0 +1,18 @@
+[Unit]
+Description=Redis
+After=docker.service
+After=etcd.service
+Requires=redis-discovery@%i.service
+
+[Service]
+TimeoutStartSec=0
+KillMode=none
+EnvironmentFile=/etc/environment
+ExecStartPre=-/usr/bin/docker kill redis%i
+ExecStartPre=-/usr/bin/docker rm redis%i
+ExecStartPre=/usr/bin/docker pull redis
+ExecStart=/usr/bin/docker run --name redis%i -p ${COREOS_PUBLIC_IPV4}:%i:6379 redis
+ExecStop=/usr/bin/docker stop redis%i
+
+[X-Fleet]
+X-Conflicts=redis@*.service

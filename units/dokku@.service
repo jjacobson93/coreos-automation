@@ -1,0 +1,18 @@
+[Unit]
+Description=Dokku
+After=docker.service
+After=etcd.service
+Requires=dokku-discovery@%i.service
+
+[Service]
+TimeoutStartSec=0
+KillMode=none
+EnvironmentFile=/etc/environment
+ExecStartPre=-/usr/bin/docker kill dokku%i
+ExecStartPre=-/usr/bin/docker rm dokku%i
+ExecStartPre=/usr/bin/docker pull dokku
+ExecStart=/usr/bin/docker run --name dokku%i -p ${COREOS_PUBLIC_IPV4}:%i:5432 dokku
+ExecStop=/usr/bin/docker stop dokku%i
+
+[X-Fleet]
+X-Conflicts=dokku@*.service
